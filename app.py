@@ -88,6 +88,10 @@ html, body, [class*="css"]  {
 }
 html {
     scroll-behavior: smooth;
+    color-scheme: light only;
+}
+:root {
+    color-scheme: light only;
 }
 h1, h2, h3 {
     font-family: 'Fraunces', serif !important;
