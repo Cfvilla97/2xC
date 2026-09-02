@@ -122,6 +122,19 @@ div[data-testid="stForm"] {
     border-radius: 16px;
     padding: 18px 12px 16px;
     text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.activity-box:hover {
+    border-color: #B85C6B;
+}
+.activity-box.selected {
+    border-color: #B85C6B;
+    box-shadow: 0 0 0 2px rgba(184, 92, 107, 0.25);
+    background: #FDF4F1;
+}
+.activity-box:active {
+    transform: scale(0.98);
 }
 .activity-box .bar {
     height: 4px;
@@ -145,6 +158,17 @@ div[data-testid="stForm"] {
     font-size: 0.78rem;
     color: #8A6A64;
     line-height: 1.35;
+}
+.hidden-radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    padding: 0;
+    margin: -1px;
 }
 
 /* --- scroll-reveal hero + sections --- */
@@ -252,12 +276,12 @@ if not st.session_state.submitted:
     st.markdown('<div class="reveal-section" id="sec-activities">', unsafe_allow_html=True)
     st.markdown("### Velg en opplevelse")
 
-    grid_html = '<div class="activity-grid">'
+    grid_html = '<div class="activity-grid" id="activity-grid">'
     for i, (name, info) in enumerate(ACTIVITIES.items()):
         src = image_src(info["image"])
         color = ACCENTS[i % len(ACCENTS)]
         grid_html += f'''
-        <div class="activity-box">
+        <div class="activity-box" data-index="{i}">
             <div class="bar" style="background:{color};"></div>
             <img src="{src}">
             <div class="title">{name}</div>
@@ -266,10 +290,12 @@ if not st.session_state.submitted:
     grid_html += '</div>'
     st.markdown(grid_html, unsafe_allow_html=True)
 
+    st.markdown('<div class="hidden-radio" id="activity-radio-wrapper">', unsafe_allow_html=True)
     activity_names = list(ACTIVITIES.keys())
     chosen_activity = st.radio(
         "Velg opplevelse", activity_names, label_visibility="collapsed", index=None, horizontal=True
     )
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- DATES ----------
@@ -353,6 +379,28 @@ components.html(
             }, { threshold: 0.15, root: null });
             obs.observe(sec);
         });
+
+        // wire up clickable activity boxes to the hidden radio inputs
+        const wrapper = doc.getElementById('activity-radio-wrapper');
+        const boxes = doc.querySelectorAll('#activity-grid .activity-box');
+        if (wrapper && boxes.length) {
+            const radios = wrapper.querySelectorAll('input[type="radio"]');
+            if (radios.length === boxes.length) {
+                boxes.forEach((box, i) => {
+                    if (!box.dataset.wired) {
+                        box.dataset.wired = "1";
+                        box.addEventListener('click', () => {
+                            radios[i].click();
+                        });
+                    }
+                    if (radios[i].checked) {
+                        box.classList.add('selected');
+                    } else {
+                        box.classList.remove('selected');
+                    }
+                });
+            }
+        }
     }
     setupReveal();
     setTimeout(setupReveal, 400);
