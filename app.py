@@ -86,6 +86,9 @@ st.markdown("""
 html, body, [class*="css"]  {
     font-family: 'Work Sans', sans-serif;
 }
+html {
+    scroll-behavior: smooth;
+}
 h1, h2, h3 {
     font-family: 'Fraunces', serif !important;
     font-weight: 500 !important;
@@ -96,12 +99,27 @@ h1, h2, h3 {
 .block-container {
     max-width: 620px;
     padding-top: 0rem;
+    padding-bottom: 3rem;
 }
 div[data-testid="stForm"] {
     background: transparent;
     border: none;
 }
-.stCheckbox, .stRadio {
+.stCheckbox {
+    background: #FFFDF9;
+    border: 1.5px solid #EAD4CE;
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.15s ease, transform 0.08s ease;
+}
+.stCheckbox:active {
+    transform: scale(0.98);
+}
+.stCheckbox label p {
+    font-size: 0.95rem !important;
+}
+.stRadio {
     background: #FFFDF9;
     border: 1.5px solid #EAD4CE;
     border-radius: 16px;
@@ -113,13 +131,18 @@ div[data-testid="stForm"] {
     color: white;
     border-radius: 12px;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-weight: 600;
     width: 100%;
+    min-height: 46px;
+    transition: transform 0.08s ease, background 0.15s ease;
 }
 .stButton button:hover {
     background-color: #9C4A57;
     color: white;
+}
+.stButton button:active {
+    transform: scale(0.97);
 }
 .stTextInput input, .stTextArea textarea {
     border-radius: 12px !important;
@@ -155,19 +178,19 @@ div[data-testid="stForm"] {
     margin-bottom: 6px;
 }
 .activity-card-inner .desc {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     color: #6B4F4A;
-    line-height: 1.4;
+    line-height: 1.45;
     text-align: left;
 }
 .activity-card-inner .meta-row {
     text-align: left;
-    font-size: 0.7rem;
+    font-size: 0.76rem;
     color: #8A6A64;
     margin-top: 10px;
     padding-top: 8px;
     border-top: 1px dashed #EAD4CE;
-    line-height: 1.55;
+    line-height: 1.6;
 }
 .activity-card-inner .meta-row .label {
     font-weight: 600;
@@ -225,6 +248,30 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(.card-selected) {
 .reveal-section.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* respect people who've asked for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero-block, .reveal-section, .hint, .heart-pop {
+        transition: none !important;
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* success screen: small heart pop */
+.heart-pop {
+    text-align: center;
+    font-size: 2.4rem;
+    margin: 10px 0 0;
+    animation: pop 0.5s ease;
+}
+@keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -350,6 +397,7 @@ if not st.session_state.submitted:
     st.markdown('</div>', unsafe_allow_html=True)
 
 else:
+    st.markdown('<div class="heart-pop">♡</div>', unsafe_allow_html=True)
     st.success("Sendt! 🙂 Jeg tar kontakt for å bestemme detaljene.")
 
 st.markdown('<p style="text-align:center;color:#B85C6B;font-size:1.1rem;margin:24px 0 8px;">♡</p>', unsafe_allow_html=True)
@@ -365,6 +413,10 @@ with st.expander("Arrangør"):
                 st.write("Ingen svar ennå.")
             else:
                 st.dataframe(df, use_container_width=True)
+                if st.button("Slett alle svar"):
+                    if os.path.exists(RESPONSES_FILE):
+                        os.remove(RESPONSES_FILE)
+                    st.rerun()
         else:
             st.error("Feil kodeord.")
 
