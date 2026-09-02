@@ -42,7 +42,7 @@ ACTIVITIES = {
     },
     "Badstue og fjordbad": {
         "desc": "En av dine spesialiteter. Fjordbad — riktignok litt varmere enn isbadingen du elsker — men med noe godt i glasset og utsikt attpå.",
-        "image": "https://v.imgi.no/8dxk2bazcd",
+        "image": "badstue.jpg",
         "sted": "Sørenga sjøbad, Oslo havn",
         "type": "Avslapning",
         "ta_med": "Badetøy og håndkle",
