@@ -3,10 +3,9 @@ import pandas as pd
 from datetime import datetime
 import os
 
-# ---------- EDIT THESE BEFORE DEPLOYING ----------
-GUEST_PASSWORD = "Christina_12345"
-ADMIN_PASSWORD = "Carl_12345"
-# --------------------------------------------------
+# Passordene hentes fra Streamlit sine "Secrets" (App settings → Secrets)
+GUEST_PASSWORD = st.secrets.get("guest_password", "Christina_12345")
+ADMIN_PASSWORD = st.secrets.get("admin_password", "Carl_12345")
 
 RESPONSES_FILE = "svar.csv"
 
