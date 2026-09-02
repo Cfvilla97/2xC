@@ -21,7 +21,7 @@ DATES = [
 ACTIVITIES = {
     "Innendørs ski": {
         "desc": "Snø midt i byen — vi tar en runde i bakken.",
-        "image": "images/ski.jpg",
+        "image": "ski.jpg",
     },
     "Badstue og fjordbad": {
         "desc": "Varm opp, hopp i — badstue etterfulgt av et kaldt dukkert i fjorden.",
@@ -33,15 +33,15 @@ ACTIVITIES = {
     },
     "En smak av 17. mai": {
         "desc": "Champagnefrokost til middag: pølser, kake og en liten quiz med leker.",
-        "image": "images/17mai.jpg",
+        "image": "17mai.jpg",
     },
     "Munch og ramen": {
         "desc": "Innom Munchmuseet, så en skål varm ramen på Koie etterpå.",
-        "image": "images/munch.jpg",
+        "image": "munch.jpg",
     },
     "Buldring": {
         "desc": "Klatring uten tau — bare oss, en vegg og litt konkurranseinstinkt.",
-        "image": "images/buldring.jpg",
+        "image": "buldring.jpg",
     },
 }
 
