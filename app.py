@@ -140,19 +140,6 @@ div[data-testid="stForm"] {
     border-radius: 16px;
     padding: 18px 12px 16px;
     text-align: center;
-    cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-}
-.activity-box:hover {
-    border-color: #B85C6B;
-}
-.activity-box.selected {
-    border-color: #B85C6B;
-    box-shadow: 0 0 0 2px rgba(184, 92, 107, 0.25);
-    background: #FDF4F1;
-}
-.activity-box:active {
-    transform: scale(0.98);
 }
 .activity-box .bar {
     height: 4px;
@@ -202,16 +189,6 @@ div[data-testid="stForm"] {
 .activity-box .meta-row .label {
     font-weight: 600;
     color: #4A2E30;
-}
-/* the real radio input group is kept for state, but hidden visually —
-   the boxes above are what she actually clicks */
-div[data-testid="stRadio"] {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
 }
 
 /* --- scroll-reveal hero + sections --- */
@@ -339,8 +316,9 @@ if not st.session_state.submitted:
     st.markdown(grid_html, unsafe_allow_html=True)
 
     activity_names = list(ACTIVITIES.keys())
-    chosen_activity = st.radio(
-        "Velg opplevelse", activity_names, label_visibility="collapsed", index=None, horizontal=True
+    st.write("")
+    chosen_activity = st.pills(
+        "Velg opplevelse", activity_names, label_visibility="collapsed", selection_mode="single"
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -425,28 +403,6 @@ components.html(
             }, { threshold: 0.15, root: null });
             obs.observe(sec);
         });
-
-        // wire up clickable activity boxes to the hidden radio inputs
-        const boxes = doc.querySelectorAll('#activity-grid .activity-box');
-        const radioGroup = doc.querySelector('div[data-testid="stRadio"]');
-        if (radioGroup && boxes.length) {
-            const radios = radioGroup.querySelectorAll('input[type="radio"]');
-            if (radios.length === boxes.length) {
-                boxes.forEach((box, i) => {
-                    if (!box.dataset.wired) {
-                        box.dataset.wired = "1";
-                        box.addEventListener('click', () => {
-                            radios[i].click();
-                        });
-                    }
-                    if (radios[i].checked) {
-                        box.classList.add('selected');
-                    } else {
-                        box.classList.remove('selected');
-                    }
-                });
-            }
-        }
     }
     setupReveal();
     setTimeout(setupReveal, 400);
