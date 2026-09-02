@@ -36,26 +36,44 @@ ACTIVITIES = {
     "Innendørs ski": {
         "desc": "Ta med racerskiene — snø midt i byen venter. Jeg garanterer termos med kakao (og en aperol spritz i lommelerka), røde kinn, en god kveld, og trolig et par mislykkede jibbeforsøk fra undertegnede i parken.",
         "image": "ski.jpg",
+        "sted": "SNØ, Lørenskog",
+        "type": "Sport & snø",
+        "ta_med": "Varme klær — skiutstyr fikser vi der",
     },
     "Badstue og fjordbad": {
         "desc": "En av dine spesialiteter. Fjordbad — riktignok litt varmere enn isbadingen du elsker — men med noe godt i glasset og utsikt attpå.",
         "image": "https://v.imgi.no/8dxk2bazcd",
+        "sted": "Sørenga sjøbad, Oslo havn",
+        "type": "Avslapning",
+        "ta_med": "Badetøy og håndkle",
     },
     "Joggetur og middag": {
         "desc": "Etter utallige maratonløp, halvmaratoner og sentrumsløp kan du endelig ta meg med, sette pace, og se hvor dårlig formen egentlig er på denne 28-åringen. Endorfiner først, god middag etterpå — thai hjemme hos meg?",
         "image": "https://images.unsplash.com/photo-1758520705254-1e9d913d78ea?fm=jpg&q=60&w=1200&auto=format&fit=crop",
+        "sted": "Sentrum, avslutter hjemme hos meg",
+        "type": "Trening & mat",
+        "ta_med": "Løpesko og godt humør",
     },
     "En smak av 17. mai": {
         "desc": "Hva er bedre enn å gjenoppleve favorittdagen din — i september? Pølse i brød, eggerøre, rundstykker og bacon, kaker, is og bottomless mimosa. Espresso martini kan skaffes på forespørsel. Vi pynter koselig som på selveste dagen, og tester kunnskapene dine i en 17. mai-quiz. God stemning garantert.",
         "image": "17mai.jpg",
+        "sted": "Hjemme hos meg",
+        "type": "Feiring",
+        "ta_med": "Sultent mage og quiz-hjerne",
     },
     "Munch og ramen": {
         "desc": "Litt kultur på Munchmuseet, etterfulgt av ramen hos Koie. Kirin Ichiban, sake, varm kraft og noen gode samtaler.",
         "image": "munch.jpg",
+        "sted": "Munchmuseet + Koie, Bjørvika",
+        "type": "Kultur & mat",
+        "ta_med": "Nysgjerrighet",
     },
     "Buldring": {
         "desc": "Oslo Klatresenter, Grünerløkka eller Torshov — hva har de til felles? Bratte vegger, dårlige tak, slitne overarmer, men en arena som garanterer god stemning mellom oss to. Etterpå blir det økologisk IPA og vegetarpølse (eller noe tilsvarende) på en av Grünerløkkas barer.",
         "image": "buldring.jpg",
+        "sted": "Oslo Klatresenter, Grünerløkka/Torshov",
+        "type": "Klatring",
+        "ta_med": "Treningsklær — klatresko kan lånes",
     },
 }
 
@@ -142,33 +160,58 @@ div[data-testid="stForm"] {
     margin: -18px -12px 14px;
 }
 .activity-box img {
-    width: 84px;
-    height: 84px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+.activity-box .type-tag {
+    display: inline-block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 3px 11px;
+    border-radius: 999px;
+    background: #F3E3DE;
+    margin-bottom: 8px;
 }
 .activity-box .title {
-    font-weight: 600;
-    font-size: 0.92rem;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.15rem;
     color: #4A2E30;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 .activity-box .desc {
-    font-size: 0.78rem;
-    color: #8A6A64;
-    line-height: 1.35;
+    font-size: 0.8rem;
+    color: #6B4F4A;
+    line-height: 1.45;
+    text-align: left;
 }
-.hidden-radio {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-    padding: 0;
-    margin: -1px;
+.activity-box .meta-row {
+    text-align: left;
+    font-size: 0.72rem;
+    color: #8A6A64;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #EAD4CE;
+    line-height: 1.6;
+}
+.activity-box .meta-row .label {
+    font-weight: 600;
+    color: #4A2E30;
+}
+/* the real radio input group is kept for state, but hidden visually —
+   the boxes above are what she actually clicks */
+div[data-testid="stRadio"] {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
 }
 
 /* --- scroll-reveal hero + sections --- */
@@ -284,18 +327,21 @@ if not st.session_state.submitted:
         <div class="activity-box" data-index="{i}">
             <div class="bar" style="background:{color};"></div>
             <img src="{src}">
+            <div class="type-tag" style="color:{color};">{info["type"]}</div>
             <div class="title">{name}</div>
             <div class="desc">{info["desc"]}</div>
+            <div class="meta-row">
+                <span class="label">Sted:</span> {info["sted"]}<br>
+                <span class="label">Ta med:</span> {info["ta_med"]}
+            </div>
         </div>'''
     grid_html += '</div>'
     st.markdown(grid_html, unsafe_allow_html=True)
 
-    st.markdown('<div class="hidden-radio" id="activity-radio-wrapper">', unsafe_allow_html=True)
     activity_names = list(ACTIVITIES.keys())
     chosen_activity = st.radio(
         "Velg opplevelse", activity_names, label_visibility="collapsed", index=None, horizontal=True
     )
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- DATES ----------
@@ -381,10 +427,10 @@ components.html(
         });
 
         // wire up clickable activity boxes to the hidden radio inputs
-        const wrapper = doc.getElementById('activity-radio-wrapper');
         const boxes = doc.querySelectorAll('#activity-grid .activity-box');
-        if (wrapper && boxes.length) {
-            const radios = wrapper.querySelectorAll('input[type="radio"]');
+        const radioGroup = doc.querySelector('div[data-testid="stRadio"]');
+        if (radioGroup && boxes.length) {
+            const radios = radioGroup.querySelectorAll('input[type="radio"]');
             if (radios.length === boxes.length) {
                 boxes.forEach((box, i) => {
                     if (!box.dataset.wired) {
