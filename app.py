@@ -1,10 +1,11 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 import os
 import base64
 
-ACCENTS = ["#2E6F6E", "#E4A335", "#E2705A", "#2E6F6E", "#E4A335", "#E2705A"]
+ACCENTS = ["#B85C6B", "#C9A227", "#C1694F", "#B85C6B", "#C9A227", "#C1694F"]
 
 
 def image_src(path_or_url):
@@ -16,7 +17,7 @@ def image_src(path_or_url):
     return f"data:image/jpeg;base64,{data}"
 
 
-# Passordene hentes fra Streamlit sine "Secrets" (App settings → Secrets)
+# Passordene hentes fra Streamlit sine "Secrets" (App settings -> Secrets)
 GUEST_PASSWORD = st.secrets.get("guest_password", "Christina_12345")
 ADMIN_PASSWORD = st.secrets.get("admin_password", "Carl_12345")
 
@@ -49,11 +50,11 @@ ACTIVITIES = {
         "image": "17mai.jpg",
     },
     "Munch og ramen": {
-        "desc": "Litt kultur på Munchmuseet, etterfulgt av ramen hos Koie. Kirin Ichiban, sake, varm kraft og forhåpentligvis noen gode samtaler.",
+        "desc": "Litt kultur på Munchmuseet, etterfulgt av ramen hos Koie. Kirin Ichiban, sake, varm kraft og noen gode samtaler.",
         "image": "munch.jpg",
     },
     "Buldring": {
-        "desc": "Oslo Klatresenter, Grünerløkka eller Torshov — hva har de til felles? Bratte vegger, dårlige tak, slitne overarmer, men garantert god stemning mellom oss to. Etterpå blir det økologisk IPA og vegetarpølse (eller noe tilsvarende) på en av Grünerløkkas barer.",
+        "desc": "Oslo Klatresenter, Grünerløkka eller Torshov — hva har de til felles? Bratte vegger, dårlige tak, slitne overarmer, men en arena som garanterer god stemning mellom oss to. Etterpå blir det økologisk IPA og vegetarpølse (eller noe tilsvarende) på en av Grünerløkkas barer.",
         "image": "buldring.jpg",
     },
 }
@@ -72,25 +73,25 @@ h1, h2, h3 {
     font-weight: 500 !important;
 }
 .stApp {
-    background-color: #FBF6EC;
+    background-color: #FBEFE9;
 }
 .block-container {
     max-width: 620px;
-    padding-top: 3rem;
+    padding-top: 0rem;
 }
 div[data-testid="stForm"] {
     background: transparent;
     border: none;
 }
 .stCheckbox, .stRadio {
-    background: #FFFFFF;
-    border: 1.5px solid #DDD2BC;
+    background: #FFFDF9;
+    border: 1.5px solid #EAD4CE;
     border-radius: 16px;
     padding: 10px 16px;
     margin-bottom: 8px;
 }
 .stButton button {
-    background-color: #26313C;
+    background-color: #B85C6B;
     color: white;
     border-radius: 12px;
     border: none;
@@ -99,12 +100,12 @@ div[data-testid="stForm"] {
     width: 100%;
 }
 .stButton button:hover {
-    background-color: #2E6F6E;
+    background-color: #9C4A57;
     color: white;
 }
 .stTextInput input, .stTextArea textarea {
     border-radius: 12px !important;
-    border: 1.5px solid #DDD2BC !important;
+    border: 1.5px solid #EAD4CE !important;
 }
 [data-testid="stImage"] img {
     border-radius: 16px;
@@ -116,8 +117,8 @@ div[data-testid="stForm"] {
     margin-bottom: 18px;
 }
 .activity-box {
-    background: #FFFFFF;
-    border: 1.5px solid #DDD2BC;
+    background: #FFFDF9;
+    border: 1.5px solid #EAD4CE;
     border-radius: 16px;
     padding: 18px 12px 16px;
     text-align: center;
@@ -137,13 +138,58 @@ div[data-testid="stForm"] {
 .activity-box .title {
     font-weight: 600;
     font-size: 0.92rem;
-    color: #26313C;
+    color: #4A2E30;
     margin-bottom: 4px;
 }
 .activity-box .desc {
     font-size: 0.78rem;
-    color: #5B6672;
+    color: #8A6A64;
     line-height: 1.35;
+}
+
+/* --- scroll-reveal hero + sections --- */
+.hero-block {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.hero-block h1 {
+    font-size: 3rem;
+    line-height: 1.1;
+    margin: 0 0 10px;
+    color: #4A2E30;
+}
+.hero-block p {
+    color: #8A6A64;
+    font-size: 1rem;
+}
+.hero-block .hint {
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: #B85C6B;
+    animation: bounce 2s infinite;
+}
+.hero-block.faded {
+    opacity: 0;
+    transform: translateY(-30px);
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+}
+.reveal-section {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-section.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -152,17 +198,15 @@ div[data-testid="stForm"] {
 def load_responses():
     if os.path.exists(RESPONSES_FILE):
         return pd.read_csv(RESPONSES_FILE)
-    return pd.DataFrame(columns=["tidspunkt", "navn", "dager", "opplevelse", "melding"])
+    return pd.DataFrame(columns=["tidspunkt", "dager", "opplevelse"])
 
 
-def save_response(navn, dager, opplevelse, melding):
+def save_response(dager, opplevelse):
     df = load_responses()
     new_row = {
         "tidspunkt": datetime.now().isoformat(timespec="seconds"),
-        "navn": navn,
         "dager": ", ".join(dager),
         "opplevelse": opplevelse,
-        "melding": melding,
     }
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(RESPONSES_FILE, index=False)
@@ -184,16 +228,29 @@ if not st.session_state.unlocked:
             st.error("Feil kodeord, prøv igjen.")
     st.stop()
 
-# ---------- MAIN CONTENT ----------
-st.markdown("EN INVITASJON TIL CHRISTINA")
-st.markdown("# Skal vi finne på noe sammen?")
-st.write("Jeg har seks ideer og noen ledige dager i september. Velg det som frister mest — resten fikser jeg.")
-
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
+# ---------- HERO ----------
+st.markdown(
+    '''
+    <div class="hero-block" id="hero-block">
+        <p style="text-transform:uppercase;letter-spacing:0.05em;font-size:0.8rem;color:#B85C6B;">
+            En invitasjon til Christina
+        </p>
+        <h1>Invitasjon til date?</h1>
+        <p>Bla ned for å velge.</p>
+        <div class="hint">↓ scroll ned</div>
+    </div>
+    ''',
+    unsafe_allow_html=True,
+)
+
 if not st.session_state.submitted:
-    st.markdown("### 01 · Velg en opplevelse")
+
+    # ---------- ACTIVITIES ----------
+    st.markdown('<div class="reveal-section" id="sec-activities">', unsafe_allow_html=True)
+    st.markdown("### Velg en opplevelse")
 
     grid_html = '<div class="activity-grid">'
     for i, (name, info) in enumerate(ACTIVITIES.items()):
@@ -209,38 +266,40 @@ if not st.session_state.submitted:
     grid_html += '</div>'
     st.markdown(grid_html, unsafe_allow_html=True)
 
-    activity_labels = [f"{name} — {info['desc']}" for name, info in ACTIVITIES.items()]
-    choice = st.radio("Velg opplevelse", activity_labels, label_visibility="collapsed", index=None)
-    chosen_activity = None
-    if choice:
-        chosen_activity = list(ACTIVITIES.keys())[activity_labels.index(choice)]
+    activity_names = list(ACTIVITIES.keys())
+    chosen_activity = st.radio(
+        "Velg opplevelse", activity_names, label_visibility="collapsed", index=None, horizontal=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### 02 · Hvilke dager passer?")
+    # ---------- DATES ----------
+    st.markdown('<div class="reveal-section" id="sec-dates">', unsafe_allow_html=True)
+    st.markdown("### Hvilke dager passer?")
     chosen_dates = []
     for d in DATES:
         if st.checkbox(d, key=f"date_{d}"):
             chosen_dates.append(d)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### 03 · Send det til meg")
-    navn = st.text_input("Navnet ditt")
-    melding = st.text_area("Melding (valgfritt)", height=80)
-
+    # ---------- SEND ----------
+    st.markdown('<div class="reveal-section" id="sec-send">', unsafe_allow_html=True)
+    st.write("")
     if st.button("Send svar"):
-        if not navn.strip():
-            st.error("Skriv navnet ditt.")
-        elif not chosen_dates:
+        if not chosen_dates:
             st.error("Velg minst én dag som passer.")
         elif not chosen_activity:
             st.error("Velg en opplevelse.")
         else:
-            save_response(navn.strip(), chosen_dates, chosen_activity, melding.strip())
+            save_response(chosen_dates, chosen_activity)
             st.session_state.submitted = True
             st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
 else:
     st.success("Sendt! 🙂 Jeg tar kontakt for å bestemme detaljene.")
 
-st.markdown("---")
-st.markdown("_Gleder meg — CF_")
+st.markdown('<p style="text-align:center;color:#B85C6B;font-size:1.1rem;margin:24px 0 8px;">♡</p>', unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;font-family:Fraunces,serif;font-style:italic;color:#4A2E30;'>Gleder meg — CF</p>", unsafe_allow_html=True)
 
 # ---------- ADMIN VIEW ----------
 with st.expander("Arrangør"):
@@ -254,3 +313,51 @@ with st.expander("Arrangør"):
                 st.dataframe(df, use_container_width=True)
         else:
             st.error("Feil kodeord.")
+
+# ---------- SCROLL-REVEAL SCRIPT ----------
+# Injects an IntersectionObserver into the parent Streamlit page (this component
+# itself is invisible, height=0) so the hero fades out and each section fades in
+# as it scrolls into view.
+components.html(
+    """
+    <script>
+    function setupReveal() {
+        const doc = window.parent.document;
+        const hero = doc.getElementById('hero-block');
+        const sections = doc.querySelectorAll('.reveal-section');
+        if (!hero && sections.length === 0) return;
+
+        if (hero && !hero.dataset.observed) {
+            hero.dataset.observed = "1";
+            const heroObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.intersectionRatio < 0.35) {
+                        hero.classList.add('faded');
+                    } else {
+                        hero.classList.remove('faded');
+                    }
+                });
+            }, { threshold: [0, 0.35, 1], root: null });
+            heroObserver.observe(hero);
+        }
+
+        sections.forEach(sec => {
+            if (sec.dataset.observed) return;
+            sec.dataset.observed = "1";
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        sec.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.15, root: null });
+            obs.observe(sec);
+        });
+    }
+    setupReveal();
+    setTimeout(setupReveal, 400);
+    setTimeout(setupReveal, 1200);
+    </script>
+    """,
+    height=0,
+)
