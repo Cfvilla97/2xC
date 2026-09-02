@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 import os
@@ -209,7 +208,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(.card-selected) {
     background: #FDF4F1;
 }
 
-/* --- scroll-reveal hero + sections --- */
+/* --- hero + section entrance --- */
 .hero-block {
     min-height: 92vh;
     display: flex;
@@ -217,8 +216,6 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(.card-selected) {
     align-items: center;
     justify-content: center;
     text-align: center;
-    opacity: 1;
-    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 .hero-block h1 {
     font-size: 3rem;
@@ -236,29 +233,29 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(.card-selected) {
     color: #B85C6B;
     animation: bounce 2s infinite;
 }
-.hero-block.faded {
-    opacity: 0;
-    transform: translateY(-30px);
-}
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(8px); }
 }
+
+/* content fades gently in shortly after the page loads — pure CSS,
+   no scroll-tracking JS involved, so it always ends up visible even
+   if the animation itself doesn't run on some device/browser */
 .reveal-section {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    animation: fadeInUp 0.7s ease both;
 }
-.reveal-section.visible {
-    opacity: 1;
-    transform: translateY(0);
+#sec-activities { animation-delay: 0.1s; }
+#sec-dates { animation-delay: 0.2s; }
+#sec-send { animation-delay: 0.3s; }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* respect people who've asked for reduced motion */
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .hero-block, .reveal-section, .hint, .heart-pop {
-        transition: none !important;
         animation: none !important;
         opacity: 1 !important;
         transform: none !important;
@@ -423,51 +420,3 @@ with st.expander("Arrangør"):
                     st.rerun()
         else:
             st.error("Feil kodeord.")
-
-# ---------- SCROLL-REVEAL SCRIPT ----------
-# Injects an IntersectionObserver into the parent Streamlit page (this component
-# itself is invisible, height=0) so the hero fades out and each section fades in
-# as it scrolls into view.
-components.html(
-    """
-    <script>
-    function setupReveal() {
-        const doc = window.parent.document;
-        const hero = doc.getElementById('hero-block');
-        const sections = doc.querySelectorAll('.reveal-section');
-        if (!hero && sections.length === 0) return;
-
-        if (hero && !hero.dataset.observed) {
-            hero.dataset.observed = "1";
-            const heroObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.intersectionRatio < 0.35) {
-                        hero.classList.add('faded');
-                    } else {
-                        hero.classList.remove('faded');
-                    }
-                });
-            }, { threshold: [0, 0.35, 1], root: null });
-            heroObserver.observe(hero);
-        }
-
-        sections.forEach(sec => {
-            if (sec.dataset.observed) return;
-            sec.dataset.observed = "1";
-            const obs = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        sec.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.15, root: null });
-            obs.observe(sec);
-        });
-    }
-    setupReveal();
-    setTimeout(setupReveal, 400);
-    setTimeout(setupReveal, 1200);
-    </script>
-    """,
-    height=0,
-)
