@@ -19,12 +19,30 @@ DATES = [
 ]
 
 ACTIVITIES = {
-    "Innendørs ski": "Snø midt i byen — vi tar en runde i bakken.",
-    "Badstue og fjordbad": "Varm opp, hopp i — badstue etterfulgt av et kaldt dukkert i fjorden.",
-    "Joggetur og middag": "En løpetur for å få opp pulsen, så middag etterpå.",
-    "En smak av 17. mai": "Champagnefrokost til middag: pølser, kake og en liten quiz med leker.",
-    "Munch og ramen": "Innom Munchmuseet, så en skål varm ramen på Koie etterpå.",
-    "Buldring": "Klatring uten tau — bare oss, en vegg og litt konkurranseinstinkt.",
+    "Innendørs ski": {
+        "desc": "Snø midt i byen — vi tar en runde i bakken.",
+        "image": "images/ski.jpg",
+    },
+    "Badstue og fjordbad": {
+        "desc": "Varm opp, hopp i — badstue etterfulgt av et kaldt dukkert i fjorden.",
+        "image": "https://v.imgi.no/8dxk2bazcd",
+    },
+    "Joggetur og middag": {
+        "desc": "En løpetur for å få opp pulsen, så middag etterpå.",
+        "image": "https://images.unsplash.com/photo-1758520705254-1e9d913d78ea?fm=jpg&q=60&w=1200&auto=format&fit=crop",
+    },
+    "En smak av 17. mai": {
+        "desc": "Champagnefrokost til middag: pølser, kake og en liten quiz med leker.",
+        "image": "images/17mai.jpg",
+    },
+    "Munch og ramen": {
+        "desc": "Innom Munchmuseet, så en skål varm ramen på Koie etterpå.",
+        "image": "images/munch.jpg",
+    },
+    "Buldring": {
+        "desc": "Klatring uten tau — bare oss, en vegg og litt konkurranseinstinkt.",
+        "image": "images/buldring.jpg",
+    },
 }
 
 st.set_page_config(page_title="Innlogging", page_icon="🔒", layout="centered")
@@ -74,6 +92,9 @@ div[data-testid="stForm"] {
 .stTextInput input, .stTextArea textarea {
     border-radius: 12px !important;
     border: 1.5px solid #DDD2BC !important;
+}
+[data-testid="stImage"] img {
+    border-radius: 16px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -130,8 +151,17 @@ if not st.session_state.submitted:
             chosen_dates.append(d)
 
     st.markdown("### 02 · Velg en opplevelse")
-    activity_labels = [f"**{name}** — {desc}" for name, desc in ACTIVITIES.items()]
-    choice = st.radio("Opplevelse", activity_labels, label_visibility="collapsed", index=None)
+    for name, info in ACTIVITIES.items():
+        col_img, col_text = st.columns([1, 1.4])
+        with col_img:
+            st.image(info["image"], use_container_width=True)
+        with col_text:
+            st.markdown(f"**{name}**")
+            st.caption(info["desc"])
+        st.write("")
+
+    activity_labels = [f"{name} — {info['desc']}" for name, info in ACTIVITIES.items()]
+    choice = st.radio("Velg opplevelse", activity_labels, label_visibility="collapsed", index=None)
     chosen_activity = None
     if choice:
         chosen_activity = list(ACTIVITIES.keys())[activity_labels.index(choice)]
