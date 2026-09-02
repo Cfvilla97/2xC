@@ -4,8 +4,8 @@ from datetime import datetime
 import os
 
 # ---------- EDIT THESE BEFORE DEPLOYING ----------
-GUEST_PASSWORD = "17mai"
-ADMIN_PASSWORD = "17mai"
+GUEST_PASSWORD = "Christina_12345"
+ADMIN_PASSWORD = "Carl_12345"
 # --------------------------------------------------
 
 RESPONSES_FILE = "svar.csv"
@@ -28,7 +28,7 @@ ACTIVITIES = {
     "Buldring": "Klatring uten tau — bare oss, en vegg og litt konkurranseinstinkt.",
 }
 
-st.set_page_config(page_title="En invitasjon", page_icon="✨", layout="centered")
+st.set_page_config(page_title="Innlogging", page_icon="🔒", layout="centered")
 
 st.markdown("""
 <style>
@@ -104,10 +104,10 @@ if "unlocked" not in st.session_state:
     st.session_state.unlocked = False
 
 if not st.session_state.unlocked:
-    st.markdown("### 🔒 Dette er privat")
-    st.write("Du trenger kodeordet du fikk for å åpne invitasjonen.")
-    pw = st.text_input("Kodeord", type="password")
-    if st.button("Lås opp"):
+    st.markdown("### Innlogging")
+    st.write("Skriv inn kodeordet for å fortsette.")
+    pw = st.text_input("Kodeord", type="password", label_visibility="collapsed", placeholder="Kodeord")
+    if st.button("Fortsett"):
         if pw.strip().lower() == GUEST_PASSWORD.lower():
             st.session_state.unlocked = True
             st.rerun()
