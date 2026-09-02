@@ -2,6 +2,19 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import base64
+
+ACCENTS = ["#2E6F6E", "#E4A335", "#E2705A", "#2E6F6E", "#E4A335", "#E2705A"]
+
+
+def image_src(path_or_url):
+    """Return a src usable in an <img> tag: pass URLs through, base64-encode local files."""
+    if path_or_url.startswith("http"):
+        return path_or_url
+    with open(path_or_url, "rb") as f:
+        data = base64.b64encode(f.read()).decode()
+    return f"data:image/jpeg;base64,{data}"
+
 
 # Passordene hentes fra Streamlit sine "Secrets" (App settings → Secrets)
 GUEST_PASSWORD = st.secrets.get("guest_password", "Christina_12345")
@@ -20,27 +33,27 @@ DATES = [
 
 ACTIVITIES = {
     "Innendørs ski": {
-        "desc": "Snø midt i byen — vi tar en runde i bakken.",
+        "desc": "Ta med racerskiene — snø midt i byen venter. Jeg garanterer termos med kakao (og en aperol spritz i lommelerka), røde kinn, en god kveld, og trolig et par mislykkede jibbeforsøk fra undertegnede i parken.",
         "image": "ski.jpg",
     },
     "Badstue og fjordbad": {
-        "desc": "Varm opp, hopp i — badstue etterfulgt av et kaldt dukkert i fjorden.",
+        "desc": "En av dine spesialiteter. Fjordbad — riktignok litt varmere enn isbadingen du elsker — men med noe godt i glasset og utsikt attpå.",
         "image": "https://v.imgi.no/8dxk2bazcd",
     },
     "Joggetur og middag": {
-        "desc": "En løpetur for å få opp pulsen, så middag etterpå.",
+        "desc": "Etter utallige maratonløp, halvmaratoner og sentrumsløp kan du endelig ta meg med, sette pace, og se hvor dårlig formen egentlig er på denne 28-åringen. Endorfiner først, god middag etterpå — thai hjemme hos meg?",
         "image": "https://images.unsplash.com/photo-1758520705254-1e9d913d78ea?fm=jpg&q=60&w=1200&auto=format&fit=crop",
     },
     "En smak av 17. mai": {
-        "desc": "Champagnefrokost til middag: pølser, kake og en liten quiz med leker.",
+        "desc": "Hva er bedre enn å gjenoppleve favorittdagen din — i september? Pølse i brød, eggerøre, rundstykker og bacon, kaker, is og bottomless mimosa. Espresso martini kan skaffes på forespørsel. Vi pynter koselig som på selveste dagen, og tester kunnskapene dine i en 17. mai-quiz. God stemning garantert.",
         "image": "17mai.jpg",
     },
     "Munch og ramen": {
-        "desc": "Innom Munchmuseet, så en skål varm ramen på Koie etterpå.",
+        "desc": "Litt kultur på Munchmuseet, etterfulgt av ramen hos Koie. Kirin Ichiban, sake, varm kraft og forhåpentligvis noen gode samtaler.",
         "image": "munch.jpg",
     },
     "Buldring": {
-        "desc": "Klatring uten tau — bare oss, en vegg og litt konkurranseinstinkt.",
+        "desc": "Oslo Klatresenter, Grünerløkka eller Torshov — hva har de til felles? Bratte vegger, dårlige tak, slitne overarmer, men garantert god stemning mellom oss to. Etterpå blir det økologisk IPA og vegetarpølse (eller noe tilsvarende) på en av Grünerløkkas barer.",
         "image": "buldring.jpg",
     },
 }
@@ -96,6 +109,42 @@ div[data-testid="stForm"] {
 [data-testid="stImage"] img {
     border-radius: 16px;
 }
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.activity-box {
+    background: #FFFFFF;
+    border: 1.5px solid #DDD2BC;
+    border-radius: 16px;
+    padding: 18px 12px 16px;
+    text-align: center;
+}
+.activity-box .bar {
+    height: 4px;
+    border-radius: 4px;
+    margin: -18px -12px 14px;
+}
+.activity-box img {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+.activity-box .title {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #26313C;
+    margin-bottom: 4px;
+}
+.activity-box .desc {
+    font-size: 0.78rem;
+    color: #5B6672;
+    line-height: 1.35;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -136,35 +185,41 @@ if not st.session_state.unlocked:
     st.stop()
 
 # ---------- MAIN CONTENT ----------
-st.markdown("EN INVITASJON")
+st.markdown("EN INVITASJON TIL CHRISTINA")
 st.markdown("# Skal vi finne på noe sammen?")
-st.write("Jeg har seks ideer og noen ledige dager i september. Velg det som frister — resten fikser jeg.")
+st.write("Jeg har seks ideer og noen ledige dager i september. Velg det som frister mest — resten fikser jeg.")
 
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
 if not st.session_state.submitted:
-    st.markdown("### 01 · Hvilke dager passer?")
-    chosen_dates = []
-    for d in DATES:
-        if st.checkbox(d, key=f"date_{d}"):
-            chosen_dates.append(d)
+    st.markdown("### 01 · Velg en opplevelse")
 
-    st.markdown("### 02 · Velg en opplevelse")
-    for name, info in ACTIVITIES.items():
-        col_img, col_text = st.columns([1, 1.4])
-        with col_img:
-            st.image(info["image"], use_container_width=True)
-        with col_text:
-            st.markdown(f"**{name}**")
-            st.caption(info["desc"])
-        st.write("")
+    grid_html = '<div class="activity-grid">'
+    for i, (name, info) in enumerate(ACTIVITIES.items()):
+        src = image_src(info["image"])
+        color = ACCENTS[i % len(ACCENTS)]
+        grid_html += f'''
+        <div class="activity-box">
+            <div class="bar" style="background:{color};"></div>
+            <img src="{src}">
+            <div class="title">{name}</div>
+            <div class="desc">{info["desc"]}</div>
+        </div>'''
+    grid_html += '</div>'
+    st.markdown(grid_html, unsafe_allow_html=True)
 
     activity_labels = [f"{name} — {info['desc']}" for name, info in ACTIVITIES.items()]
     choice = st.radio("Velg opplevelse", activity_labels, label_visibility="collapsed", index=None)
     chosen_activity = None
     if choice:
         chosen_activity = list(ACTIVITIES.keys())[activity_labels.index(choice)]
+
+    st.markdown("### 02 · Hvilke dager passer?")
+    chosen_dates = []
+    for d in DATES:
+        if st.checkbox(d, key=f"date_{d}"):
+            chosen_dates.append(d)
 
     st.markdown("### 03 · Send det til meg")
     navn = st.text_input("Navnet ditt")
