@@ -38,7 +38,7 @@ ACTIVITIES = {
         "image": "ski.jpg",
         "sted": "SNØ, Lørenskog",
         "type": "Sport & snø",
-        "ta_med": "Varme klær — skiutstyr fikser vi der",
+        "ta_med": "Varme klær og ski",
     },
     "Badstue og fjordbad": {
         "desc": "En av dine spesialiteter. Fjordbad — riktignok litt varmere enn isbadingen du elsker — men med noe godt i glasset og utsikt attpå.",
@@ -66,14 +66,14 @@ ACTIVITIES = {
         "image": "munch.jpg",
         "sted": "Munchmuseet + Koie, Bjørvika",
         "type": "Kultur & mat",
-        "ta_med": "Nysgjerrighet",
+        "ta_med": "Nysgjerrighet og sulten mage",
     },
     "Buldring": {
         "desc": "Oslo Klatresenter, Grünerløkka eller Torshov — hva har de til felles? Bratte vegger, dårlige tak, slitne overarmer, men en arena som garanterer god stemning mellom oss to. Etterpå blir det økologisk IPA og vegetarpølse (eller noe tilsvarende) på en av Grünerløkkas barer.",
         "image": "buldring.jpg",
         "sted": "Oslo Klatresenter, Grünerløkka/Torshov",
         "type": "Klatring",
-        "ta_med": "Treningsklær — klatresko kan lånes",
+        "ta_med": "Treningsklær og en problemløsende hjerne (klatresko kan lånes)",
     },
 }
 
@@ -128,32 +128,15 @@ div[data-testid="stForm"] {
 [data-testid="stImage"] img {
     border-radius: 16px;
 }
-.activity-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px;
-    margin-bottom: 18px;
-}
-.activity-box {
-    background: #FFFDF9;
-    border: 1.5px solid #EAD4CE;
-    border-radius: 16px;
-    padding: 18px 12px 16px;
-    text-align: center;
-}
-.activity-box .bar {
-    height: 4px;
-    border-radius: 4px;
-    margin: -18px -12px 14px;
-}
-.activity-box img {
+.activity-card-inner img {
     width: 88px;
     height: 88px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 12px;
+    display: block;
+    margin: 0 auto 12px;
 }
-.activity-box .type-tag {
+.activity-card-inner .type-tag {
     display: inline-block;
     font-size: 0.66rem;
     font-weight: 600;
@@ -163,32 +146,40 @@ div[data-testid="stForm"] {
     background: #F3E3DE;
     margin-bottom: 8px;
 }
-.activity-box .title {
+.activity-card-inner .title {
     font-family: 'Fraunces', serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     color: #4A2E30;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
-.activity-box .desc {
-    font-size: 0.8rem;
+.activity-card-inner .desc {
+    font-size: 0.78rem;
     color: #6B4F4A;
-    line-height: 1.45;
+    line-height: 1.4;
     text-align: left;
 }
-.activity-box .meta-row {
+.activity-card-inner .meta-row {
     text-align: left;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: #8A6A64;
-    margin-top: 12px;
-    padding-top: 10px;
+    margin-top: 10px;
+    padding-top: 8px;
     border-top: 1px dashed #EAD4CE;
-    line-height: 1.6;
+    line-height: 1.55;
 }
-.activity-box .meta-row .label {
+.activity-card-inner .meta-row .label {
     font-weight: 600;
     color: #4A2E30;
+}
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    text-align: center;
+}
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.card-selected) {
+    border-color: #B85C6B !important;
+    box-shadow: 0 0 0 2px rgba(184, 92, 107, 0.25);
+    background: #FDF4F1;
 }
 
 /* --- scroll-reveal hero + sections --- */
@@ -296,30 +287,43 @@ if not st.session_state.submitted:
     st.markdown('<div class="reveal-section" id="sec-activities">', unsafe_allow_html=True)
     st.markdown("### Velg en opplevelse")
 
-    grid_html = '<div class="activity-grid" id="activity-grid">'
-    for i, (name, info) in enumerate(ACTIVITIES.items()):
-        src = image_src(info["image"])
-        color = ACCENTS[i % len(ACCENTS)]
-        grid_html += f'''
-        <div class="activity-box" data-index="{i}">
-            <div class="bar" style="background:{color};"></div>
-            <img src="{src}">
-            <div class="type-tag" style="color:{color};">{info["type"]}</div>
-            <div class="title">{name}</div>
-            <div class="desc">{info["desc"]}</div>
-            <div class="meta-row">
-                <span class="label">Sted:</span> {info["sted"]}<br>
-                <span class="label">Ta med:</span> {info["ta_med"]}
-            </div>
-        </div>'''
-    grid_html += '</div>'
-    st.markdown(grid_html, unsafe_allow_html=True)
+    if "chosen_activity" not in st.session_state:
+        st.session_state.chosen_activity = None
 
-    activity_names = list(ACTIVITIES.keys())
-    st.write("")
-    chosen_activity = st.pills(
-        "Velg opplevelse", activity_names, label_visibility="collapsed", selection_mode="single"
-    )
+    activity_items = list(ACTIVITIES.items())
+    for row_start in range(0, len(activity_items), 3):
+        row = activity_items[row_start:row_start + 3]
+        cols = st.columns(len(row))
+        for col, (name, info) in zip(cols, row):
+            i = activity_items.index((name, info))
+            color = ACCENTS[i % len(ACCENTS)]
+            src = image_src(info["image"])
+            is_selected = st.session_state.chosen_activity == name
+            with col:
+                with st.container(border=True):
+                    if is_selected:
+                        st.markdown('<span class="card-selected" style="display:none;"></span>', unsafe_allow_html=True)
+                    card_html = f'''
+                    <div class="activity-card-inner">
+                        <div style="height:4px;border-radius:4px;background:{color};margin:-17px -17px 14px;"></div>
+                        <img src="{src}">
+                        <div class="type-tag" style="color:{color};">{info["type"]}</div>
+                        <div class="title">{name}</div>
+                        <div class="desc">{info["desc"]}</div>
+                        <div class="meta-row">
+                            <span class="label">Sted:</span> {info["sted"]}<br>
+                            <span class="label">Ta med:</span> {info["ta_med"]}
+                        </div>
+                    </div>
+                    '''
+                    st.markdown(card_html, unsafe_allow_html=True)
+                    st.write("")
+                    button_label = "✓ Valgt" if is_selected else "Velg denne"
+                    if st.button(button_label, key=f"pick_{i}", use_container_width=True):
+                        st.session_state.chosen_activity = name
+                        st.rerun()
+
+    chosen_activity = st.session_state.chosen_activity
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- DATES ----------
