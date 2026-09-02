@@ -49,7 +49,7 @@ ACTIVITIES = {
     },
     "Joggetur og middag": {
         "desc": "Etter utallige maratonløp, halvmaratoner og sentrumsløp kan du endelig ta meg med, sette pace, og se hvor dårlig formen egentlig er på denne 28-åringen. Endorfiner først, god middag etterpå — thai hjemme hos meg?",
-        "image": "https://images.unsplash.com/photo-1758520705254-1e9d913d78ea?fm=jpg&q=60&w=1200&auto=format&fit=crop",
+        "image": "https://images.unsplash.com/photo-1744450863389-c9d11b3a63eb?fm=jpg&q=60&w=1200&auto=format&fit=crop",
         "sted": "Sentrum, avslutter hjemme hos meg",
         "type": "Trening & mat",
         "ta_med": "Løpesko og godt humør",
